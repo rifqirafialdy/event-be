@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
+import java.time.Instant;
 import java.util.Map;
 
 @RestController
@@ -44,32 +45,32 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequestDTO request, HttpServletResponse response) {
         LoginResponse loginResponse = authService.login(request);
 
-        // Access Token Cookie
-        // Access Token Cookie
+        long now = Instant.now().getEpochSecond();
+        long accessExpiresIn = loginResponse.getAccessToken().getExpiresAt() - now;
+        long refreshExpiresIn = loginResponse.getRefreshToken().getExpiresAt() - now;
+
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", loginResponse.getAccessToken().getValue())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(loginResponse.getAccessToken().getExpiresAt())
+                .maxAge(accessExpiresIn)
                 .sameSite("None")
                 .build();
 
-// Refresh Token Cookie
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", loginResponse.getRefreshToken().getValue())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(loginResponse.getRefreshToken().getExpiresAt())
+                .maxAge(refreshExpiresIn)
                 .sameSite("None")
                 .build();
 
-// Add multiple Set-Cookie headers properly
         response.addHeader("Set-Cookie", accessCookie.toString());
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
         return ResponseEntity.ok(loginResponse);
-
     }
+
 
 
     @PostMapping("/refresh")
