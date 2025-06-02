@@ -11,6 +11,8 @@ import com.example.event_be.auth.presentation.DTO.LoginRequestDTO;
 import com.example.event_be.auth.presentation.DTO.LoginResponse;
 import com.example.event_be.auth.presentation.DTO.RefreshTokenRequest;
 import com.example.event_be.auth.presentation.DTO.Registration.RegisterUserRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -90,7 +92,15 @@ public class AuthController {
         return ResponseEntity.ok(exists ? "Token exists in Redis" : "Token NOT found");
     }
     @GetMapping("/users/me")
-    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request, Authentication authentication) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                System.out.println("Cookie received: " + c.getName() + "=" + c.getValue());
+            }
+        } else {
+            System.out.println("No cookies received.");
+        }
         String userId = authentication.getName();
         SysUser user = sysUserRepository.findById(userId).orElseThrow();
 
