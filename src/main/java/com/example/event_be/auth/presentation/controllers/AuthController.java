@@ -44,16 +44,16 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequestDTO request, HttpServletResponse response) {
         LoginResponse loginResponse = authService.login(request);
 
-        // Set access token (optional, often used only in memory or for quick API calls)
+        // Access Token Cookie
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", loginResponse.getAccessToken().getValue())
                 .httpOnly(true)
-                .secure(true) // ✅ set true in production (HTTPS)
+                .secure(true) // ✅ Set to false only for local dev without HTTPS
                 .path("/")
                 .maxAge(loginResponse.getAccessToken().getExpiresAt())
-                .sameSite("Strict") // or "Lax"
+                .sameSite("Strict")
                 .build();
 
-        // Set refresh token (MUST be HttpOnly)
+        // Refresh Token Cookie
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", loginResponse.getRefreshToken().getValue())
                 .httpOnly(true)
                 .secure(true)
@@ -62,11 +62,13 @@ public class AuthController {
                 .sameSite("Strict")
                 .build();
 
-        response.addHeader("Set-Cookie", accessCookie.toString());
-        response.addHeader("Set-Cookie", refreshCookie.toString());
-
-        return ResponseEntity.ok(loginResponse); // Optional: include user info
+        // Add both cookies as separate headers
+        return ResponseEntity.ok()
+                .header("Set-Cookie", accessCookie.toString())
+                .header("Set-Cookie", refreshCookie.toString())
+                .body(loginResponse);
     }
+
 
     @PostMapping("/refresh")
     public ResponseEntity<Token> refresh(@RequestBody RefreshTokenRequest request) {
