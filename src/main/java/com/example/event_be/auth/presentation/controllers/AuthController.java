@@ -69,6 +69,9 @@ public class AuthController {
 
         response.addHeader("Set-Cookie", accessCookie.toString());
         response.addHeader("Set-Cookie", refreshCookie.toString());
+        System.out.println("AccessToken Cookie: " + accessCookie.toString());
+        System.out.println("RefreshToken Cookie: " + refreshCookie.toString());
+
 
         return ResponseEntity.ok(loginResponse);
     }
