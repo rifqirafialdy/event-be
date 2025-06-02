@@ -45,28 +45,30 @@ public class AuthController {
         LoginResponse loginResponse = authService.login(request);
 
         // Access Token Cookie
+        // Access Token Cookie
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", loginResponse.getAccessToken().getValue())
                 .httpOnly(true)
-                .secure(true) // ✅ Set to false only for local dev without HTTPS
+                .secure(true)
                 .path("/")
                 .maxAge(loginResponse.getAccessToken().getExpiresAt())
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
 
-        // Refresh Token Cookie
+// Refresh Token Cookie
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", loginResponse.getRefreshToken().getValue())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(loginResponse.getRefreshToken().getExpiresAt())
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
 
-        // Add both cookies as separate headers
-        return ResponseEntity.ok()
-                .header("Set-Cookie", accessCookie.toString())
-                .header("Set-Cookie", refreshCookie.toString())
-                .body(loginResponse);
+// Add multiple Set-Cookie headers properly
+        response.addHeader("Set-Cookie", accessCookie.toString());
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        return ResponseEntity.ok(loginResponse);
+
     }
 
 
