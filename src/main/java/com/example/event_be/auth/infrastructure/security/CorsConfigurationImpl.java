@@ -12,7 +12,6 @@ public class CorsConfigurationImpl implements CorsConfigurationSource {
     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        // ✅ Specific allowed origins
         corsConfiguration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:3001",
@@ -21,17 +20,14 @@ public class CorsConfigurationImpl implements CorsConfigurationSource {
                 "https://purwafest.vercel.app"
         ));
 
-        // ✅ Allow necessary HTTP methods
         corsConfiguration.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
         ));
 
-        // ✅ Allow required headers
         corsConfiguration.setAllowedHeaders(List.of(
                 "Authorization", "Cache-Control", "Content-Type"
         ));
 
-        // ✅ Expose any headers the frontend needs to read (optional)
         corsConfiguration.setExposedHeaders(List.of(
                 "Authorization"
         ));

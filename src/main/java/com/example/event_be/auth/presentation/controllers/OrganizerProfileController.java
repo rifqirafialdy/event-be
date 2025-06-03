@@ -19,7 +19,7 @@ public class OrganizerProfileController {
     @PreAuthorize("@rbacService.hasAccess(authentication.name, 'PROFILE', 'CREATE')")
     @PostMapping
     public ResponseEntity<?> saveProfile(@RequestBody @Valid OrganizerProfile request, Authentication authentication) {
-        String userId = authentication.getName(); // ✅ use correct variable name
+        String userId = authentication.getName(); //
         OrganizerProfile saved = organizerProfileService.saveOrUpdateProfile(userId, request);
         return ResponseEntity.ok(saved);
     }
@@ -27,7 +27,7 @@ public class OrganizerProfileController {
     @PreAuthorize("@rbacService.hasAccess(authentication.name, 'PROFILE', 'VIEW')")
     @GetMapping
     public ResponseEntity<?> getProfile(Authentication authentication) {
-        String userId = authentication.getName(); // ✅ consistent here too
+        String userId = authentication.getName(); //
         OrganizerProfile profile = organizerProfileService.getProfileByEmail(userId);
         return ResponseEntity.ok(profile);
     }

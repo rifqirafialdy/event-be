@@ -85,10 +85,31 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<Void> logout(@RequestBody RefreshTokenRequest request, HttpServletResponse response) {
         authService.logout(request.getRefreshToken());
+
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        response.addHeader("Set-Cookie", accessCookie.toString());
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("/debug/refresh-token/{token}")
     public ResponseEntity<String> checkRefreshToken(@PathVariable String token) {
         boolean exists = refreshTokenService.isValid(token);
