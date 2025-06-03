@@ -24,16 +24,11 @@ public class CorsConfigurationImpl implements CorsConfigurationSource {
                 "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
         ));
 
-        corsConfiguration.setAllowedHeaders(List.of(
-                "Authorization", "Cache-Control", "Content-Type"
-        ));
+        corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.addExposedHeader("*");
 
-        corsConfiguration.setExposedHeaders(List.of(
-                "Authorization"
-        ));
-
-        // ✅ Allow cookies
         corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setMaxAge(3600L); // Optional: cache preflight
 
         return corsConfiguration;
     }
