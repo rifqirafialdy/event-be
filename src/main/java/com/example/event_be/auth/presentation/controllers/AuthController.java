@@ -3,6 +3,7 @@ package com.example.event_be.auth.presentation.controllers;
 import com.example.event_be.auth.application.services.AuthService;
 import com.example.event_be.auth.application.services.RefreshTokenService;
 import com.example.event_be.auth.application.services.RegistrationService;
+import com.example.event_be.auth.domain.entities.SysScreenModeAccess;
 import com.example.event_be.auth.domain.entities.SysUser;
 import com.example.event_be.auth.domain.entities.SysUserRole;
 import com.example.event_be.auth.domain.valueObject.Token;
@@ -39,7 +40,7 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     private final SysUserRepository sysUserRepository;
     private final SysUserRoleRepository sysUserRoleRepository;
-    private final SysScreenModeAccessRepository screenModeAccessRepository
+    private final SysScreenModeAccessRepository screenModeAccessRepository;
 
 
     @PostMapping("/register")
@@ -137,38 +138,48 @@ public class AuthController {
     }
     @GetMapping("/users/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request, Authentication authentication) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                System.out.println("Cookie received: " + c.getName() + "=" + c.getValue());
+            }
+        } else {
+            System.out.println("No cookies received.");
+        }
+
         String userId = authentication.getName();
         SysUser user = sysUserRepository.findById(userId).orElseThrow();
 
-        List<SysUserRole> userRoles = sysUserRoleRepository.findBySysUserId(userId);
-        List<String> roleCodes = userRoles.stream()
-                .map(role -> role.getSysRole().getCode())
+        List<SysUserRole> roles = sysUserRoleRepository.findBySysUserId(userId);
+        List<String> roleCodes = roles.stream()
+                .map(r -> r.getSysRole().getCode())
                 .toList();
 
-        // Fetch all screen-action access for the user's roles
-        var accessList = screenModeAccessRepository
-                .findBySysScreenRole_SysRole_CodeIn(roleCodes);
+        // fetch permissions for this user's role(s)
+        List<SysScreenModeAccess> accesses = screenModeAccessRepository.findBySysScreenRole_SysRole_CodeIn(roleCodes);
 
-        // Group by screen and collect actions
-        Map<String, List<String>> screenPermissions = accessList.stream()
+        // build permission map: { screenCode: [actions] }
+        Map<String, List<String>> permissions = accesses.stream()
                 .collect(Collectors.groupingBy(
-                        a -> a.getSysScreenRole().getSysScreen().getCode(),
-                        Collectors.mapping(a -> a.getSysScreenAction().getSysAction().getCode(), Collectors.toList())
+                        access -> access.getSysScreenRole().getSysScreen().getCode(),
+                        Collectors.mapping(
+                                access -> access.getSysScreenAction().getSysAction().getCode(),
+                                Collectors.toList()
+                        )
                 ));
 
-        // Map to frontend-friendly list
-        List<Map<String, Object>> permissions = screenPermissions.entrySet().stream()
-                .map(entry -> Map.of("screen", entry.getKey(), "actions", entry.getValue()))
-                .toList();
+        // assume single role for simplicity, if needed you can return a list
+        String role = roleCodes.isEmpty() ? "UNKNOWN" : roleCodes.get(0);
 
         return ResponseEntity.ok(Map.of(
                 "id", user.getId(),
                 "name", user.getName(),
                 "email", user.getEmail(),
-                "role", roleCodes.isEmpty() ? "UNKNOWN" : roleCodes.get(0),
+                "role", role,
                 "permissions", permissions
         ));
     }
+
 
 
 
