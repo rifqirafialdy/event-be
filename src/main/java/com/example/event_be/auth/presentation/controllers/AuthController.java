@@ -85,9 +85,23 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody RefreshTokenRequest request, HttpServletResponse response) {
-        authService.logout(request.getRefreshToken());
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        // Get refresh token from cookie
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                }
+            }
+        }
 
+        if (refreshToken != null) {
+            authService.logout(refreshToken); // revoke from Redis etc.
+        }
+
+        // Clear cookies
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
                 .secure(true)
@@ -109,6 +123,7 @@ public class AuthController {
 
         return ResponseEntity.ok().build();
     }
+
 
     @GetMapping("/debug/refresh-token/{token}")
     public ResponseEntity<String> checkRefreshToken(@PathVariable String token) {
