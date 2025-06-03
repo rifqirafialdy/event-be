@@ -12,4 +12,6 @@ public interface SysScreenModeAccessRepository extends JpaRepository<SysScreenMo
             String screenCode,
             String actionCode
     );
+    List<SysScreenModeAccess> findBySysScreenRole_SysRole_CodeIn(List<String> roleCodes);
+
 }
