@@ -62,7 +62,7 @@ public class AuthController {
                 .secure(false)
                 .path("/")
                 .maxAge(accessExpiresIn)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", loginResponse.getRefreshToken().getValue())
@@ -70,7 +70,7 @@ public class AuthController {
                 .secure(false)
                 .path("/")
                 .maxAge(refreshExpiresIn)
-                .sameSite("None")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader("Set-Cookie", accessCookie.toString());
