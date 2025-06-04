@@ -59,18 +59,18 @@ public class AuthController {
 
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", loginResponse.getAccessToken().getValue())
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(accessExpiresIn)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", loginResponse.getRefreshToken().getValue())
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(refreshExpiresIn)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         response.addHeader("Set-Cookie", accessCookie.toString());
