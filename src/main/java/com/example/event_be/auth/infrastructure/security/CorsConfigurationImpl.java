@@ -28,7 +28,7 @@ public class CorsConfigurationImpl implements CorsConfigurationSource {
         corsConfiguration.addExposedHeader("*");
 
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setMaxAge(3600L); // Optional: cache preflight
+        corsConfiguration.setMaxAge(3600L);
 
         return corsConfiguration;
     }
