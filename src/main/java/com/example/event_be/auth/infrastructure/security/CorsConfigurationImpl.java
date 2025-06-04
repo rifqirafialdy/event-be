@@ -18,7 +18,7 @@ public class CorsConfigurationImpl implements CorsConfigurationSource {
                 "http://localhost:3001",
                 "http://0.0.0.0:3000",
                 "http://host.docker.internal:3000",
-                "https://purwafest.vercel.app"
+                "https://eventify-46et3q9yf-rifqis-projects-feca9ca7.vercel.app"
         ));
 
         // Allowed HTTP methods
