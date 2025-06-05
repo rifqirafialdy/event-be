@@ -1,42 +1,36 @@
-package com.example.event_be.auth.domain.entities;
+package com.example.event_be.refferal.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "bns_app_tran")
+@Table(name = "cas_app_bns")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BnsAppTran {
+public class CasAppBns {
 
     @Id
     @Column(length = 50)
     private String id;
 
-    @Column(length = 20)
-    private String bnsAppCode;
+    @ManyToOne
+    @JoinColumn(name = "cas_app_id")
+    private CasApp casApp;
 
-    @Column(length = 20)
-    private String parCountryCode;
+    @ManyToOne
+    @JoinColumn(name = "bns_app_tran_id")
+    private BnsAppTran bnsAppTran;
 
-    @Column(length = 20)
-    private String parCurrencyCode;
-
+    private Boolean applied;
     private Boolean percented;
     private Double amount;
     private Boolean amountLimited;
     private Double maximumAmount;
-    private Boolean expired;
 
     private ZonedDateTime expiredAt;
-
-    @Column(length = 20)
-    private String bnsParValidCode;
-
-    private Integer bnsParValidValue;
 
     private String createdBy;
     private ZonedDateTime createdAt;
@@ -49,4 +43,6 @@ public class BnsAppTran {
 
     private String approvedBy;
     private ZonedDateTime approvedAt;
+
+    private Integer version = 1;
 }

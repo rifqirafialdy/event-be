@@ -3,6 +3,8 @@ package com.example.event_be.auth.domain.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "sys_screen_action")
 @Data
@@ -22,4 +24,7 @@ public class SysScreenAction {
     @ManyToOne
     @JoinColumn(name = "sys_action_code")
     private SysAction sysAction;
+
+    @OneToMany(mappedBy = "sysScreenAction")
+    private List<SysScreenModeAccess> modeAccesses;
 }

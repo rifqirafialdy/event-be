@@ -1,4 +1,4 @@
-package com.example.event_be.auth.domain.entities;
+package com.example.event_be.refferal.domain.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

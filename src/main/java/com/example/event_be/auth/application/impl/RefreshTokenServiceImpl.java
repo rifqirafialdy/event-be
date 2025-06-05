@@ -21,11 +21,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public boolean isValid(String jti) {
+
         return redisTemplate.hasKey(PREFIX + jti);
     }
 
     @Override
     public void revoke(String jti) {
+
         redisTemplate.delete(PREFIX + jti);
     }
 }

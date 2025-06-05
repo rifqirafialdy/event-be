@@ -4,6 +4,8 @@ import com.example.event_be.auth.application.services.RegistrationService;
 import com.example.event_be.auth.domain.entities.*;
 import com.example.event_be.auth.infrastructure.repositories.*;
 import com.example.event_be.auth.presentation.DTO.Registration.RegisterUserRequest;
+import com.example.event_be.refferal.domain.entities.*;
+import com.example.event_be.refferal.infrastructure.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

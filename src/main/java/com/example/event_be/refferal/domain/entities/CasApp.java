@@ -1,38 +1,35 @@
-package com.example.event_be.auth.domain.entities;
+package com.example.event_be.refferal.domain.entities;
 
+import com.example.event_be.auth.domain.entities.SysUser;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "cas_app_bns")
+@Table(name = "cas_app")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CasAppBns {
+public class CasApp {
 
     @Id
     @Column(length = 50)
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "cas_app_id")
-    private CasApp casApp;
+    @JoinColumn(name = "app_user_id")
+    private SysUser appUser;
 
-    @ManyToOne
-    @JoinColumn(name = "bns_app_tran_id")
-    private BnsAppTran bnsAppTran;
+    @Column(length = 40, unique = true)
+    private String referenceNumber;
 
-    private Boolean applied;
-    private Boolean percented;
-    private Double amount;
-    private Boolean amountLimited;
-    private Double maximumAmount;
+    @Column(length = 40)
+    private String preReferenceNumber;
 
-    private ZonedDateTime expiredAt;
-
+    @Column(length = 50)
     private String createdBy;
+
     private ZonedDateTime createdAt;
     private String updatedBy;
     private ZonedDateTime updatedAt;

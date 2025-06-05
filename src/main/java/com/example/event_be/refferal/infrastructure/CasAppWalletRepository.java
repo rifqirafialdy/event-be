@@ -1,6 +1,6 @@
-package com.example.event_be.auth.infrastructure.repositories;
+package com.example.event_be.refferal.infrastructure;
 
-import com.example.event_be.auth.domain.entities.CasAppWallet;
+import com.example.event_be.refferal.domain.entities.CasAppWallet;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
