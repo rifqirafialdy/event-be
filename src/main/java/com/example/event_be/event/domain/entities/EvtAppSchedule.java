@@ -31,7 +31,13 @@ public class EvtAppSchedule {
 
     private ZonedDateTime evtDateEnd;
 
+    @Column(name = "address_line_1")
     private String addressLine1;
+
+    @Column(name = "address_line_2")
     private String addressLine2;
+
+    @Column(name = "address_line_3")
     private String addressLine3;
+
 }
