@@ -69,7 +69,7 @@ public class EventServiceImpl implements EventService {
                         .parTicketCategoryCode(ticketDTO.getCategoryCode())
                         .parTicketCategoryName(ticketDTO.getCategoryName())
                         .parTicketCategoryCapacity(ticketDTO.getCapacity())
-                        .parTicketCategoryPrice(ticketDTO.getPrice())
+                        .parTicketCategoryPrice( ticketDTO.getPrice())
                         .build();
                 evtAppTicketRepository.save(ticket);
             }

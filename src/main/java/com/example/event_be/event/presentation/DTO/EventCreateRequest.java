@@ -31,6 +31,6 @@ public class EventCreateRequest {
         private String categoryCode;
         private String categoryName;
         private int capacity;
-        private double price;
+        private long price;
     }
 }
