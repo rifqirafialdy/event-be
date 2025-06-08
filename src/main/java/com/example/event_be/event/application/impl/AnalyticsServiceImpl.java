@@ -19,7 +19,9 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     @Override
     public Map<LocalDate, Long> getDailyTicketSales(String organizerId, LocalDate start, LocalDate end) {
         return evtAppRepository.findAllByCreatedBy(organizerId).stream()
-                .flatMap(evt -> evt.getTickets().stream())
+                .flatMap(evtApp -> evtApp.getCountries().stream())
+                .flatMap(country -> country.getSchedules().stream())
+                .flatMap(schedule -> schedule.getTickets().stream())
                 .flatMap(ticket -> ticket.getOwners().stream())
                 .filter(owner -> {
                     LocalDate date = owner.getCreatedAt().toLocalDate();

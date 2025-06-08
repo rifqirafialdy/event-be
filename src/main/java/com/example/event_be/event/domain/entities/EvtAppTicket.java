@@ -66,10 +66,12 @@ public class EvtAppTicket {
 
     private int version = 1;
 
-    @ManyToOne
-    @JoinColumn(name = "evt_app_id")
-    private EvtApp evtApp;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evt_app_schedule_id", insertable = false, updatable = false)
+    private EvtAppSchedule schedule;
 
     @OneToMany(mappedBy = "evtAppTicket", fetch = FetchType.LAZY)
     private List<EvtAppTicketOwner> owners;
+
 }

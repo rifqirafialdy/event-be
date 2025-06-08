@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -39,5 +40,12 @@ public class EvtAppSchedule {
 
     @Column(name = "address_line_3")
     private String addressLine3;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evt_app_country_id", insertable = false, updatable = false)
+    private EvtAppCountry evtAppCountry;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evt_app_schedule_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<EvtAppTicket> tickets;
 
 }

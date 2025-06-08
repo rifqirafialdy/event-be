@@ -51,7 +51,10 @@ public class EvtApp {
     private ZonedDateTime approvedAt;
 
     private int version = 1;
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evt_app_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<EvtAppCountry> countries;
 
-    @OneToMany(mappedBy = "evtApp", fetch = FetchType.LAZY)
-    private List<EvtAppTicket> tickets;
+
+
 }

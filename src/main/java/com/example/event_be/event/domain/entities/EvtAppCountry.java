@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -47,4 +48,12 @@ public class EvtAppCountry {
     private ZonedDateTime approvedAt;
 
     private int version = 1;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evt_app_id", insertable = false, updatable = false)
+    private EvtApp evtApp;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evt_app_country_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<EvtAppSchedule> schedules;
+
 }
