@@ -9,6 +9,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/organizer/profile")
 @RequiredArgsConstructor
@@ -31,4 +33,12 @@ public class OrganizerProfileController {
         OrganizerProfile profile = organizerProfileService.getProfileByEmail(userId);
         return ResponseEntity.ok(profile);
     }
+    @PreAuthorize("@rbacService.hasAccess(authentication.name, 'PROFILE', 'VIEW')")
+    @GetMapping("/exists")
+    public ResponseEntity<?> checkProfileExists(Authentication authentication) {
+        String userId = authentication.getName();
+        boolean exists = organizerProfileService.existsByUserId(userId);
+        return ResponseEntity.ok(Map.of("hasProfile", exists));
+    }
+
 }

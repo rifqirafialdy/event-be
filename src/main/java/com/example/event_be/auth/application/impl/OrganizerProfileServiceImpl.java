@@ -55,4 +55,10 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
         return organizerProfileRepository.findBySysUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
     }
+
+    @Override
+    public boolean existsByUserId(String userId) {
+        return organizerProfileRepository.existsBySysUserId(userId);
+    }
+
 }

@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface OrganizerProfileRepository extends JpaRepository<OrganizerProfile, UUID> {
     Optional<OrganizerProfile> findBySysUserId(String sysUserId);
+
+    boolean existsBySysUserId(String userId);
 }
