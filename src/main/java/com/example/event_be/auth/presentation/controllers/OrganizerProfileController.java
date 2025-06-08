@@ -2,6 +2,7 @@ package com.example.event_be.auth.presentation.controllers;
 
 import com.example.event_be.auth.application.services.OrganizerProfileService;
 import com.example.event_be.auth.domain.entities.OrganizerProfile;
+import com.example.event_be.auth.presentation.DTO.OrganizerProfileResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,18 +22,20 @@ public class OrganizerProfileController {
     @PreAuthorize("@rbacService.hasAccess(authentication.name, 'PROFILE', 'CREATE')")
     @PostMapping
     public ResponseEntity<?> saveProfile(@RequestBody @Valid OrganizerProfile request, Authentication authentication) {
-        String userId = authentication.getName(); //
+        String userId = authentication.getName();
         OrganizerProfile saved = organizerProfileService.saveOrUpdateProfile(userId, request);
         return ResponseEntity.ok(saved);
     }
 
     @PreAuthorize("@rbacService.hasAccess(authentication.name, 'PROFILE', 'VIEW')")
     @GetMapping
-    public ResponseEntity<?> getProfile(Authentication authentication) {
-        String userId = authentication.getName(); //
-        OrganizerProfile profile = organizerProfileService.getProfileByEmail(userId);
+    public ResponseEntity<OrganizerProfileResponse> getProfile(Authentication authentication) {
+        String userId = authentication.getName();
+        OrganizerProfileResponse profile = organizerProfileService.getProfileDetails(userId);
         return ResponseEntity.ok(profile);
     }
+
+    // ✅ Move this inside the class
     @PreAuthorize("@rbacService.hasAccess(authentication.name, 'PROFILE', 'VIEW')")
     @GetMapping("/exists")
     public ResponseEntity<?> checkProfileExists(Authentication authentication) {
@@ -40,5 +43,4 @@ public class OrganizerProfileController {
         boolean exists = organizerProfileService.existsByUserId(userId);
         return ResponseEntity.ok(Map.of("hasProfile", exists));
     }
-
 }

@@ -5,6 +5,7 @@ import com.example.event_be.auth.domain.entities.OrganizerProfile;
 import com.example.event_be.auth.domain.entities.SysUser;
 import com.example.event_be.auth.infrastructure.repositories.OrganizerProfileRepository;
 import com.example.event_be.auth.infrastructure.repositories.SysUserRepository;
+import com.example.event_be.auth.presentation.DTO.OrganizerProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -48,13 +49,21 @@ public class OrganizerProfileServiceImpl implements OrganizerProfileService {
     }
 
     @Override
-    public OrganizerProfile getProfileByEmail(String userId) {
+    public OrganizerProfileResponse getProfileDetails(String userId) {
         SysUser user = sysUserRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return organizerProfileRepository.findBySysUserId(user.getId())
+        OrganizerProfile profile = organizerProfileRepository.findBySysUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Profile not found"));
+
+        return OrganizerProfileResponse.builder()
+                .id(profile.getId().toString())
+                .name(profile.getName())
+                .profilePicture(profile.getProfilePicture())
+                .description(profile.getDescription())
+                .build();
     }
+
 
     @Override
     public boolean existsByUserId(String userId) {
