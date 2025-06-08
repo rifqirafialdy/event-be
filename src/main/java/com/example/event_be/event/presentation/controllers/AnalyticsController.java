@@ -2,23 +2,29 @@ package com.example.event_be.event.presentation.controllers;
 
 import com.example.event_be.event.application.services.AnalyticsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/organizer/analytics")
+@RequestMapping("/api/analytics")
 @RequiredArgsConstructor
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
 
-    @GetMapping("/sales-daily")
-    public ResponseEntity<?> getDailySales(@RequestParam String organizerId) {
-        return ResponseEntity.ok(analyticsService.getDailySales(organizerId));
+    @GetMapping("/daily-sales")
+    public ResponseEntity<Map<LocalDate, Long>> getDailySales(
+            @RequestParam String organizerId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
+    ) {
+        return ResponseEntity.ok(analyticsService.getDailyTicketSales(organizerId, start, end));
     }
-
-    // Add other endpoints here (summary, revenue, etc.)
 }
