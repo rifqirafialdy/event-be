@@ -33,7 +33,7 @@ public class EvtAppTicket {
 
     private int parTicketCategoryCapacity = 1;
 
-    private double parTicketCategoryPrice = 0;
+    private long parTicketCategoryPrice = 0;
 
     private boolean dicounted = false;
     private boolean percented = false;

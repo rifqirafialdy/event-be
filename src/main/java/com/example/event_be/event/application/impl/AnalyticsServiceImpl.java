@@ -5,6 +5,8 @@ import com.example.event_be.event.infrastructure.repositories.EvtAppCountryRepos
 import com.example.event_be.event.infrastructure.repositories.EvtAppRepository;
 import com.example.event_be.event.infrastructure.repositories.EvtAppScheduleRepository;
 import com.example.event_be.event.infrastructure.repositories.EvtAppTicketRepository;
+import com.example.event_be.event.presentation.DTO.DashboardSummaryDTO;
+import com.example.event_be.event.presentation.DTO.TopEventDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,5 +47,42 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                         Collectors.counting()
                 ));
     }
+    @Override
+    public DashboardSummaryDTO getDashboardSummary(String organizerId) {
+        var events = evtAppRepository.findAllByCreatedBy(organizerId);
+
+        long totalEvents = events.size();
+        long totalParticipants = 0;
+        long totalRevenue = 0;
+
+        Map<String, Long> eventSalesMap = new java.util.HashMap<>();
+
+        for (var evt : events) {
+            var countries = evtAppCountryRepository.findByEvtAppId(evt.getId());
+            for (var country : countries) {
+                var schedules = evtAppScheduleRepository.findByEvtAppCountryId(country.getId());
+                for (var schedule : schedules) {
+                    var tickets = evtAppTicketRepository.findByEvtAppScheduleId(schedule.getId());
+                    for (var ticket : tickets) {
+                        int sold = (ticket.getOwners() != null) ? ticket.getOwners().size() : 0;
+                        long revenue = (long) sold * ticket.getParTicketCategoryPrice();
+                        totalParticipants += sold;
+                        totalRevenue += revenue;
+
+                        eventSalesMap.merge(evt.getName(), (long) sold, Long::sum);
+                    }
+                }
+            }
+        }
+
+        List<TopEventDTO> topEvents = eventSalesMap.entrySet().stream()
+                .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
+                .limit(5)
+                .map(e -> new TopEventDTO(e.getKey(), e.getValue()))
+                .toList();
+
+        return new DashboardSummaryDTO(totalEvents, totalParticipants, totalRevenue, topEvents);
+    }
+
 
 }

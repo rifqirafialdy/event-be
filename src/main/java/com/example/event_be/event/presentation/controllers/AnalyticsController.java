@@ -1,6 +1,7 @@
 package com.example.event_be.event.presentation.controllers;
 
 import com.example.event_be.event.application.services.AnalyticsService;
+import com.example.event_be.event.presentation.DTO.DashboardSummaryDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +27,10 @@ public class AnalyticsController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
         return ResponseEntity.ok(analyticsService.getDailyTicketSales(organizerId, start, end));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<DashboardSummaryDTO> getSummary(@RequestParam String organizerId) {
+        return ResponseEntity.ok(analyticsService.getDashboardSummary(organizerId));
     }
 }
