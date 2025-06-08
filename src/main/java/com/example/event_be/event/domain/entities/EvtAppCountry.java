@@ -21,8 +21,9 @@ public class EvtAppCountry {
     @Column(length = 50)
     private String id = UUID.randomUUID().toString();
 
-    @Column(length = 50)
-    private String evtAppId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evt_app_id")
+    private EvtApp evtApp;
 
     @Column(length = 20)
     private String parCountryCode;
@@ -48,12 +49,7 @@ public class EvtAppCountry {
     private ZonedDateTime approvedAt;
 
     private int version = 1;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evt_app_id", insertable = false, updatable = false)
-    private EvtApp evtApp;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evt_app_country_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @OneToMany(mappedBy = "evtAppCountry", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<EvtAppSchedule> schedules;
-
 }

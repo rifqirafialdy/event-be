@@ -1,4 +1,4 @@
-package com.example.event_be.event.application.services.impl;
+package com.example.event_be.event.application.impl;
 
 import com.example.event_be.event.application.services.EventService;
 import com.example.event_be.event.domain.entities.*;
@@ -25,72 +25,57 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void createEvent(EventCreateRequest request) {
-
-        // 1. Save to evt_app
+        // 1. Save evt_app
         String evtAppId = UUID.randomUUID().toString();
-        System.out.println("[DEBUG] Creating evt_app with ID: " + evtAppId);
-
         EvtApp evtApp = EvtApp.builder()
                 .id(evtAppId)
                 .name(request.getName())
                 .referenceNo(request.getReferenceNo())
                 .ectAppCode(request.getEctAppCode())
                 .build();
-
         evtApp = evtAppRepository.save(evtApp);
 
-        // 2. Save to evt_app_country
+        // 2. Save evt_app_country
         String countryCode = request.getSchedules().get(0).getParCountryCode();
         String evtAppCountryId = UUID.randomUUID().toString();
-        System.out.println("[DEBUG] Creating evt_app_country with ID: " + evtAppCountryId +
-                ", evt_app_id: " + evtAppId + ", country: " + countryCode);
-
         EvtAppCountry evtAppCountry = EvtAppCountry.builder()
                 .id(evtAppCountryId)
-                .evtAppId(evtAppId)
+                .evtApp(evtApp) // directly set object
                 .parCountryCode(countryCode)
                 .build();
-
         evtAppCountry = evtAppCountryRepository.save(evtAppCountry);
 
         // 3. Save schedules and tickets
-        for (EventCreateRequest.ScheduleDTO schedule : request.getSchedules()) {
+        for (EventCreateRequest.ScheduleDTO scheduleDTO : request.getSchedules()) {
             String scheduleId = UUID.randomUUID().toString();
-            System.out.println("[DEBUG] Creating evt_app_schedule with ID: " + scheduleId +
-                    ", evt_app_country_id: " + evtAppCountryId);
-
-            EvtAppSchedule evtAppSchedule = EvtAppSchedule.builder()
+            EvtAppSchedule schedule = EvtAppSchedule.builder()
                     .id(scheduleId)
-                    .evtAppCountryId(evtAppCountryId)
-                    .parCityCode(schedule.getParCityCode())
-                    .evtParChannelTypeCode(schedule.getChannelCode())
-                    .evtDateStart(schedule.getDateStart())
-                    .evtDateEnd(schedule.getDateEnd())
-                    .addressLine1(schedule.getAddress1())
-                    .addressLine2(schedule.getAddress2())
-                    .addressLine3(schedule.getAddress3())
+                    .evtAppCountry(evtAppCountry) // set object
+                    .parCityCode(scheduleDTO.getParCityCode())
+                    .evtParChannelTypeCode(scheduleDTO.getChannelCode())
+                    .evtDateStart(scheduleDTO.getDateStart())
+                    .evtDateEnd(scheduleDTO.getDateEnd())
+                    .addressLine1(scheduleDTO.getAddress1())
+                    .addressLine2(scheduleDTO.getAddress2())
+                    .addressLine3(scheduleDTO.getAddress3())
                     .build();
+            schedule = evtAppScheduleRepository.save(schedule);
 
-            evtAppSchedule = evtAppScheduleRepository.save(evtAppSchedule);
-
-            for (EventCreateRequest.TicketDTO ticket : request.getTickets()) {
+            for (EventCreateRequest.TicketDTO ticketDTO : request.getTickets()) {
                 String ticketId = UUID.randomUUID().toString();
-                System.out.println("[DEBUG] Creating evt_app_ticket with ID: " + ticketId +
-                        ", schedule_id: " + scheduleId);
-
-                EvtAppTicket evtAppTicket = EvtAppTicket.builder()
+                EvtAppTicket ticket = EvtAppTicket.builder()
                         .id(ticketId)
-                        .evtAppScheduleId(scheduleId)
-                        .parTicketCategoryCode(ticket.getCategoryCode())
-                        .parTicketCategoryName(ticket.getCategoryName())
-                        .parTicketCategoryCapacity(ticket.getCapacity())
-                        .parTicketCategoryPrice(ticket.getPrice())
+                        .evtAppSchedule(schedule) // set object instead of scheduleId
+                        .parTicketCategoryCode(ticketDTO.getCategoryCode())
+                        .parTicketCategoryName(ticketDTO.getCategoryName())
+                        .parTicketCategoryCapacity(ticketDTO.getCapacity())
+                        .parTicketCategoryPrice(ticketDTO.getPrice())
                         .build();
-
-                evtAppTicketRepository.save(evtAppTicket);
+                evtAppTicketRepository.save(ticket);
             }
         }
     }
+
 
     @Override
     public List<EventResponseDTO> getAllEvents() {

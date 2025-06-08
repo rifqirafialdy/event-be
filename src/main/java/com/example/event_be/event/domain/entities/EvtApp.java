@@ -51,10 +51,7 @@ public class EvtApp {
     private ZonedDateTime approvedAt;
 
     private int version = 1;
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evt_app_id", referencedColumnName = "id", insertable = false, updatable = false)
+
+    @OneToMany(mappedBy = "evtApp", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<EvtAppCountry> countries;
-
-
-
 }

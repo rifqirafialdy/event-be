@@ -29,6 +29,4 @@ public class EvtAppTicketOwner {
     private String casAppId;
 
     private ZonedDateTime createdAt;
-
-    // optional: version, soft delete, etc.
 }

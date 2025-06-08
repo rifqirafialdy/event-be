@@ -21,8 +21,9 @@ public class EvtAppTicket {
     @Column(length = 50)
     private String id = UUID.randomUUID().toString();
 
-    @Column(length = 50)
-    private String evtAppScheduleId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "evt_app_schedule_id")
+    private EvtAppSchedule evtAppSchedule;
 
     @Column(length = 20)
     private String parTicketCategoryCode;
@@ -66,12 +67,6 @@ public class EvtAppTicket {
 
     private int version = 1;
 
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evt_app_schedule_id", insertable = false, updatable = false)
-    private EvtAppSchedule schedule;
-
     @OneToMany(mappedBy = "evtAppTicket", fetch = FetchType.LAZY)
     private List<EvtAppTicketOwner> owners;
-
 }
