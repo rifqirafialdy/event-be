@@ -12,7 +12,6 @@ import com.example.event_be.auth.infrastructure.repositories.SysUserRepository;
 import com.example.event_be.auth.infrastructure.repositories.SysUserRoleRepository;
 import com.example.event_be.auth.presentation.DTO.LoginRequestDTO;
 import com.example.event_be.auth.presentation.DTO.LoginResponse;
-import com.example.event_be.auth.presentation.DTO.RefreshTokenRequest;
 import com.example.event_be.auth.presentation.DTO.Registration.RegisterUserRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -85,10 +84,26 @@ public class AuthController {
 
 
     @PostMapping("/refresh")
-    public ResponseEntity<Token> refresh(@RequestBody RefreshTokenRequest request) {
-        Token newAccessToken = authService.refreshAccessToken(request.getRefreshToken());
+    public ResponseEntity<Token> refresh(HttpServletRequest request) {
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (refreshToken == null) {
+            throw new RuntimeException("No refresh token provided");
+        }
+
+        Token newAccessToken = authService.refreshAccessToken(refreshToken);
         return ResponseEntity.ok(newAccessToken);
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
@@ -131,10 +146,10 @@ public class AuthController {
     }
 
 
-    @PostMapping("/refresh")
-    public ResponseEntity<Token> refresh(@CookieValue("refreshToken") String refreshToken) {
-        Token newAccessToken = authService.refreshAccessToken(refreshToken);
-        return ResponseEntity.ok(newAccessToken);
+    @GetMapping("/debug/refresh-token/{token}")
+    public ResponseEntity<String> checkRefreshToken(@PathVariable String token) {
+        boolean exists = refreshTokenService.isValid(token);
+        return ResponseEntity.ok(exists ? "Token exists in Redis" : "Token NOT found");
     }
     @GetMapping("/users/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request, Authentication authentication) {
