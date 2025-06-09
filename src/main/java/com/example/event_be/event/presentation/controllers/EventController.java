@@ -17,7 +17,7 @@ public class EventController {
 
     private final EventService eventService;
 
-    @PreAuthorize("@rbacService.hasAccess(authentication.name, 'EVENT', 'CREATE')")
+    @PreAuthorize("@rbacService.hasAccess(authentication.name, 'EVENTS', 'CREATE')")
     @PostMapping
     public ResponseEntity<String> createEvent(@RequestBody EventCreateRequest request) {
         eventService.createEvent(request);
