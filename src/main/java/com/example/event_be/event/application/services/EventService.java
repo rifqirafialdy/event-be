@@ -6,7 +6,7 @@ import com.example.event_be.event.presentation.DTO.EventResponseDTO;
 import java.util.List;
 
 public interface EventService {
-    void createEvent(EventCreateRequest request);
+    void createEvent(EventCreateRequest request,String organizerId);
     List<EventResponseDTO> getAllEvents();
     EventResponseDTO getEventById(String id);
 

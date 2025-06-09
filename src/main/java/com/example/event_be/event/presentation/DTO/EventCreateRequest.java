@@ -9,14 +9,15 @@ import java.util.List;
 public class EventCreateRequest {
     private String name;
     private String referenceNo;
-    private String ectAppCode; // this links to your master event config (ect_app)
-
+    private String ectAppCode;
     private List<ScheduleDTO> schedules;
     private List<TicketDTO> tickets;
+    private String organizerId;
+
 
     @Data
     public static class ScheduleDTO {
-        private String parCountryCode; // used to create evt_app_country
+        private String parCountryCode;
         private String parCityCode;
         private String channelCode;
         private ZonedDateTime dateStart;

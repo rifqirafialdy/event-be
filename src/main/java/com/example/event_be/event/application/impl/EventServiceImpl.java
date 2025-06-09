@@ -24,7 +24,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void createEvent(EventCreateRequest request) {
+    public void createEvent(EventCreateRequest request, String organizerId) {
         // 1. Save evt_app
         String evtAppId = UUID.randomUUID().toString();
         EvtApp evtApp = EvtApp.builder()
@@ -32,6 +32,7 @@ public class EventServiceImpl implements EventService {
                 .name(request.getName())
                 .referenceNo(request.getReferenceNo())
                 .ectAppCode(request.getEctAppCode())
+                .createdBy(organizerId)
                 .build();
         evtApp = evtAppRepository.save(evtApp);
 

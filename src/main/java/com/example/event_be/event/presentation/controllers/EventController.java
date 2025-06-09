@@ -6,6 +6,7 @@ import com.example.event_be.event.presentation.DTO.EventResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +20,9 @@ public class EventController {
 
     @PreAuthorize("@rbacService.hasAccess(authentication.name, 'EVENTS', 'CREATE')")
     @PostMapping
-    public ResponseEntity<String> createEvent(@RequestBody EventCreateRequest request) {
-        eventService.createEvent(request);
+    public ResponseEntity<String> createEvent(@RequestBody EventCreateRequest request, Authentication authentication ) {
+        String organizerId = authentication.getName();
+        eventService.createEvent(request, organizerId);
         return ResponseEntity.ok("Event created successfully");
     }
 
