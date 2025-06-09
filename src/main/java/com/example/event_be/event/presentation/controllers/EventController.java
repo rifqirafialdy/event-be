@@ -5,6 +5,7 @@ import com.example.event_be.event.presentation.DTO.EventCreateRequest;
 import com.example.event_be.event.presentation.DTO.EventResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class EventController {
 
     private final EventService eventService;
 
-    // Create event
+    @PreAuthorize("@rbacService.hasAccess(authentication.name, 'EVENT', 'CREATE')")
     @PostMapping
     public ResponseEntity<String> createEvent(@RequestBody EventCreateRequest request) {
         eventService.createEvent(request);
@@ -29,4 +30,11 @@ public class EventController {
         List<EventResponseDTO> events = eventService.getAllEvents();
         return ResponseEntity.ok(events);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EventResponseDTO> getEventById(@PathVariable String id) {
+        EventResponseDTO event = eventService.getEventById(id);
+        return ResponseEntity.ok(event);
+    }
+
 }

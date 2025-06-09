@@ -44,5 +44,8 @@ public class CasAppWalletTran {
     @Column(name = "amount_expired_at")
     private ZonedDateTime amountExpiredAt;
 
+    private ZonedDateTime createdAt;
+
+
 }
 

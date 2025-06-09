@@ -122,4 +122,51 @@ public class EventServiceImpl implements EventService {
         }).toList();
     }
 
+    @Override
+    public EventResponseDTO getEventById(String eventId) {
+        EvtApp event = evtAppRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        List<EvtAppCountry> countries = evtAppCountryRepository.findByEvtAppId(event.getId());
+
+        List<EventResponseDTO.ScheduleDTO> scheduleDTOs = countries.stream()
+                .flatMap(country -> evtAppScheduleRepository.findByEvtAppCountryId(country.getId()).stream()
+                        .map(schedule -> {
+                            List<EvtAppTicket> tickets = evtAppTicketRepository.findByEvtAppScheduleId(schedule.getId());
+
+                            List<EventResponseDTO.TicketDTO> ticketDTOs = tickets.stream().map(ticket ->
+                                    EventResponseDTO.TicketDTO.builder()
+                                            .categoryCode(ticket.getParTicketCategoryCode())
+                                            .categoryName(ticket.getParTicketCategoryName())
+                                            .capacity(ticket.getParTicketCategoryCapacity())
+                                            .price(ticket.getParTicketCategoryPrice())
+                                            .ticketId(ticket.getId()) // Add this if you don’t already
+                                            .build()
+                            ).toList();
+
+                            return EventResponseDTO.ScheduleDTO.builder()
+                                    .cityCode(schedule.getParCityCode())
+                                    .channelCode(schedule.getEvtParChannelTypeCode())
+                                    .startDate(schedule.getEvtDateStart())
+                                    .endDate(schedule.getEvtDateEnd())
+                                    .address1(schedule.getAddressLine1())
+                                    .address2(schedule.getAddressLine2())
+                                    .address3(schedule.getAddressLine3())
+                                    .scheduleId(schedule.getId()) // Add this if needed
+                                    .tickets(ticketDTOs)
+                                    .build();
+                        })
+                ).toList();
+
+        return EventResponseDTO.builder()
+                .id(event.getId())
+                .name(event.getName())
+                .referenceNo(event.getReferenceNo())
+                .ectAppCode(event.getEctAppCode())
+                .createdAt(event.getCreatedAt())
+                .schedules(scheduleDTOs)
+                .build();
+    }
+
+
 }

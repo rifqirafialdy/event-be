@@ -1,0 +1,24 @@
+package com.example.event_be.transaction.presentation.controllers;
+
+import com.example.event_be.transaction.application.services.TransactionService;
+import com.example.event_be.transaction.presentation.DTO.TicketPurchaseRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/transactions")
+@RequiredArgsConstructor
+public class TransactionController {
+
+    private final TransactionService transactionService;
+
+    @PostMapping("/purchase")
+    public ResponseEntity<String> purchaseTicket(@RequestBody TicketPurchaseRequest request,
+                                                 Authentication authentication) {
+        String userId = authentication.getName(); // taken from JWT Principal (should match sys_user.id)
+        transactionService.purchaseTicket(request, userId);
+        return ResponseEntity.ok("Ticket purchased successfully");
+    }
+}

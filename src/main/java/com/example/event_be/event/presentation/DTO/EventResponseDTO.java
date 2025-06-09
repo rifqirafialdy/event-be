@@ -14,12 +14,12 @@ public class EventResponseDTO {
     private String referenceNo;
     private String ectAppCode;
     private ZonedDateTime createdAt;
-
     private List<ScheduleDTO> schedules;
 
     @Data
     @Builder
     public static class ScheduleDTO {
+        private String scheduleId;         // ← ADD THIS
         private String cityCode;
         private String channelCode;
         private ZonedDateTime startDate;
@@ -33,9 +33,12 @@ public class EventResponseDTO {
     @Data
     @Builder
     public static class TicketDTO {
+        private String ticketId;           // ← ADD THIS
         private String categoryCode;
         private String categoryName;
         private int capacity;
         private double price;
     }
+
+
 }
