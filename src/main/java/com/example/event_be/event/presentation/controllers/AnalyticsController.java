@@ -5,6 +5,7 @@ import com.example.event_be.event.presentation.DTO.DashboardSummaryDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,15 +23,17 @@ public class AnalyticsController {
 
     @GetMapping("/daily-sales")
     public ResponseEntity<Map<LocalDate, Long>> getDailySales(
-            @RequestParam String organizerId,
+            Authentication authentication,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
+        String organizerId = authentication.getName();
         return ResponseEntity.ok(analyticsService.getDailyTicketSales(organizerId, start, end));
     }
 
     @GetMapping("/summary")
-    public ResponseEntity<DashboardSummaryDTO> getSummary(@RequestParam String organizerId) {
+    public ResponseEntity<DashboardSummaryDTO> getSummary(Authentication authentication) {
+        String organizerId = authentication.getName();
         return ResponseEntity.ok(analyticsService.getDashboardSummary(organizerId));
     }
 }

@@ -11,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -24,29 +24,23 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final EvtAppScheduleRepository evtAppScheduleRepository;
     private final EvtAppTicketRepository evtAppTicketRepository;
 
-
     @Override
     public Map<LocalDate, Long> getDailyTicketSales(String organizerId, LocalDate start, LocalDate end) {
         return evtAppRepository.findAllByCreatedBy(organizerId).stream()
                 .flatMap(evt -> evtAppCountryRepository.findByEvtAppId(evt.getId()).stream())
                 .flatMap(country -> evtAppScheduleRepository.findByEvtAppCountryId(country.getId()).stream())
                 .flatMap(schedule -> evtAppTicketRepository.findByEvtAppScheduleId(schedule.getId()).stream())
-                .flatMap(ticket -> {
-                    if (ticket.getOwners() != null) {
-                        return ticket.getOwners().stream();
-                    } else {
-                        return java.util.stream.Stream.empty();
-                    }
-                })
+                .flatMap(ticket -> ticket.getOwners() != null ? ticket.getOwners().stream() : Stream.empty())
                 .filter(owner -> {
                     LocalDate date = owner.getCreatedAt().toLocalDate();
                     return !date.isBefore(start) && !date.isAfter(end);
                 })
                 .collect(Collectors.groupingBy(
                         owner -> owner.getCreatedAt().toLocalDate(),
-                        Collectors.counting()
+                        Collectors.summingLong(owner -> owner.getQuantity()) // use quantity
                 ));
     }
+
     @Override
     public DashboardSummaryDTO getDashboardSummary(String organizerId) {
         var events = evtAppRepository.findAllByCreatedBy(organizerId);
@@ -55,7 +49,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         long totalParticipants = 0;
         long totalRevenue = 0;
 
-        Map<String, Long> eventSalesMap = new java.util.HashMap<>();
+        Map<String, Long> eventSalesMap = new HashMap<>();
 
         for (var evt : events) {
             var countries = evtAppCountryRepository.findByEvtAppId(evt.getId());
@@ -64,12 +58,20 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 for (var schedule : schedules) {
                     var tickets = evtAppTicketRepository.findByEvtAppScheduleId(schedule.getId());
                     for (var ticket : tickets) {
-                        int sold = (ticket.getOwners() != null) ? ticket.getOwners().size() : 0;
-                        long revenue = (long) sold * ticket.getParTicketCategoryPrice();
+                        long sold = 0;
+                        long revenue = 0;
+
+                        if (ticket.getOwners() != null) {
+                            for (var owner : ticket.getOwners()) {
+                                sold += owner.getQuantity();
+                                revenue += (long) owner.getQuantity() * ticket.getParTicketCategoryPrice();
+                            }
+                        }
+
                         totalParticipants += sold;
                         totalRevenue += revenue;
 
-                        eventSalesMap.merge(evt.getName(), (long) sold, Long::sum);
+                        eventSalesMap.merge(evt.getName(), sold, Long::sum);
                     }
                 }
             }
@@ -83,6 +85,4 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         return new DashboardSummaryDTO(totalEvents, totalParticipants, totalRevenue, topEvents);
     }
-
-
 }
