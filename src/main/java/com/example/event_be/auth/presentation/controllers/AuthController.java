@@ -131,10 +131,10 @@ public class AuthController {
     }
 
 
-    @GetMapping("/debug/refresh-token/{token}")
-    public ResponseEntity<String> checkRefreshToken(@PathVariable String token) {
-        boolean exists = refreshTokenService.isValid(token);
-        return ResponseEntity.ok(exists ? "Token exists in Redis" : "Token NOT found");
+    @PostMapping("/refresh")
+    public ResponseEntity<Token> refresh(@CookieValue("refreshToken") String refreshToken) {
+        Token newAccessToken = authService.refreshAccessToken(refreshToken);
+        return ResponseEntity.ok(newAccessToken);
     }
     @GetMapping("/users/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request, Authentication authentication) {
