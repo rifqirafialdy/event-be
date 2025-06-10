@@ -1,6 +1,5 @@
 package com.example.event_be.refferal.application.impl;
 
-
 import com.example.event_be.refferal.application.services.ReferralService;
 import com.example.event_be.refferal.domain.entities.CasApp;
 import com.example.event_be.refferal.domain.entities.CasAppWallet;
@@ -25,26 +24,34 @@ public class ReferralServiceImpl implements ReferralService {
 
     @Override
     public ReferralInfoDTO getReferralInfo(String userId) {
-        CasApp casApp = casAppRepository.findByAppUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Referral info not found"));
+        return casAppRepository.findByAppUserId(userId)
+                .map(casApp -> {
+                    CasAppWallet wallet = casAppWalletRepository.findByCasAppId(casApp.getId())
+                            .orElse(null);
 
-        CasAppWallet wallet = casAppWalletRepository.findByCasAppId(casApp.getId())
-                .orElseThrow(() -> new RuntimeException("Wallet not found"));
+                    var walletAmount = wallet != null ? wallet.getWalletAmount() : java.math.BigDecimal.ZERO;
 
-        List<ReferralPointDTO> points = casAppWalletTranRepository.findByCasAppWalletId(wallet.getId())
-                .stream()
-                .map(tran -> new ReferralPointDTO(
-                        tran.getAmount(),
-                        tran.isAmountExpired(),
-                        tran.getAmountExpiredAt(),
-                        tran.getBookTypeCode()
-                ))
-                .collect(Collectors.toList());
+                    List<ReferralPointDTO> points = wallet != null
+                            ? casAppWalletTranRepository.findByCasAppWalletId(wallet.getId()).stream()
+                            .map(tran -> new ReferralPointDTO(
+                                    tran.getAmount(),
+                                    tran.isAmountExpired(),
+                                    tran.getAmountExpiredAt(),
+                                    tran.getBookTypeCode()
+                            ))
+                            .collect(Collectors.toList())
+                            : List.of();
 
-        return new ReferralInfoDTO(
-                casApp.getReferenceNumber(),
-                wallet.getWalletAmount(),
-                points
-        );
+                    return new ReferralInfoDTO(
+                            casApp.getReferenceNumber(),
+                            walletAmount,
+                            points
+                    );
+                })
+                .orElseGet(() -> new ReferralInfoDTO(
+                        null,
+                        java.math.BigDecimal.ZERO,
+                        List.of()
+                ));
     }
 }
