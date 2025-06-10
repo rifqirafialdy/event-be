@@ -43,13 +43,20 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal price = BigDecimal.valueOf(ticket.getParTicketCategoryPrice());
         BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(request.getQuantity()));
 
-
         BigDecimal discount = BigDecimal.ZERO;
         BigDecimal redeemPointsUsed = BigDecimal.ZERO;
 
-        if (casApp.getPreReferenceNumber() != null && !casApp.getPreReferenceNumber().isEmpty()) {
+        if (casApp.getPreReferenceNumber() != null &&
+                !casApp.getPreReferenceNumber().isEmpty() &&
+                !casApp.isReferralDiscountUsed()) {
+
             discount = totalPrice.multiply(BigDecimal.valueOf(0.10));
             totalPrice = totalPrice.subtract(discount);
+
+            casApp.setReferralDiscountUsed(true);
+            casApp.setUpdatedAt(ZonedDateTime.now());
+            casApp.setUpdatedBy(userId);
+            casAppRepository.save(casApp);
         }
 
         if (request.isUsePoints()) {

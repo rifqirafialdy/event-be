@@ -42,4 +42,8 @@ public class CasApp {
     private ZonedDateTime approvedAt;
 
     private Integer version = 1;
+
+    @Column(name = "referral_discount_used")
+    private boolean referralDiscountUsed = false;
+
 }
