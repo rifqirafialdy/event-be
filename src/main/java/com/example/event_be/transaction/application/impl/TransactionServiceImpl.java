@@ -30,7 +30,6 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional
     @Override
     public void purchaseTicket(TicketPurchaseRequest request, String userId) {
-        // 1. Validate ticket
         EvtAppTicket ticket = evtAppTicketRepository.findById(request.getTicketId())
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
 
@@ -38,7 +37,6 @@ public class TransactionServiceImpl implements TransactionService {
             throw new IllegalArgumentException("Not enough tickets available");
         }
 
-        // 2. Get Customer CasApp
         CasApp casApp = casAppRepository.findByAppUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Customer CasApp not found"));
 
@@ -49,13 +47,11 @@ public class TransactionServiceImpl implements TransactionService {
         BigDecimal discount = BigDecimal.ZERO;
         BigDecimal redeemPointsUsed = BigDecimal.ZERO;
 
-        // 3. Apply referral 10% discount
         if (casApp.getPreReferenceNumber() != null && !casApp.getPreReferenceNumber().isEmpty()) {
             discount = totalPrice.multiply(BigDecimal.valueOf(0.10));
             totalPrice = totalPrice.subtract(discount);
         }
 
-        // 4. Apply redeem points if enabled
         if (request.isUsePoints()) {
             CasAppWallet wallet = casAppWalletRepository.findByCasAppId(casApp.getId())
                     .orElseThrow(() -> new RuntimeException("Wallet not found"));
@@ -66,13 +62,11 @@ public class TransactionServiceImpl implements TransactionService {
                 redeemPointsUsed = toRedeem;
                 totalPrice = totalPrice.subtract(toRedeem);
 
-                // Deduct wallet amount
                 wallet.setWalletAmount(available.subtract(toRedeem));
                 wallet.setUpdatedAt(ZonedDateTime.now());
                 wallet.setUpdatedBy(userId);
                 casAppWalletRepository.save(wallet);
 
-                // Create redeem transaction
                 CasAppWalletTran redeemTran = CasAppWalletTran.builder()
                         .id(UUID.randomUUID().toString())
                         .casAppWalletId(wallet.getId())
@@ -80,8 +74,6 @@ public class TransactionServiceImpl implements TransactionService {
                         .bookTypeCode("DEBIT")
                         .toReferenceNumber(ticket.getId())
                         .amount(toRedeem)
-                        .amountExpired(false)
-                        .amountExpiredAt(ZonedDateTime.now().plusMonths(3))
                         .createdAt(ZonedDateTime.now())
                         .build();
 
@@ -89,7 +81,6 @@ public class TransactionServiceImpl implements TransactionService {
             }
         }
 
-        // 5. Save ticket ownership
         EvtAppTicketOwner owner = EvtAppTicketOwner.builder()
                 .id(UUID.randomUUID().toString())
                 .evtAppTicket(ticket)
@@ -101,7 +92,6 @@ public class TransactionServiceImpl implements TransactionService {
 
         evtAppTicketOwnerRepository.save(owner);
 
-        // 6. Decrease ticket stock
         ticket.setParTicketCategoryCapacity(ticket.getParTicketCategoryCapacity() - request.getQuantity());
         evtAppTicketRepository.save(ticket);
     }

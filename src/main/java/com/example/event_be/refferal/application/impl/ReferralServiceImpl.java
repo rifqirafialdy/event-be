@@ -36,7 +36,8 @@ public class ReferralServiceImpl implements ReferralService {
                 .map(tran -> new ReferralPointDTO(
                         tran.getAmount(),
                         tran.isAmountExpired(),
-                        tran.getAmountExpiredAt()
+                        tran.getAmountExpiredAt(),
+                        tran.getBookTypeCode()
                 ))
                 .collect(Collectors.toList());
 
