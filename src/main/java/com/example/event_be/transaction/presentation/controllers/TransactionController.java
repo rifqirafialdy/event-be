@@ -8,6 +8,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
@@ -21,5 +24,12 @@ public class TransactionController {
         String userId = authentication.getName(); // taken from JWT Principal (should match sys_user.id)
         transactionService.purchaseTicket(request, userId);
         return ResponseEntity.ok("Ticket purchased successfully");
+    }
+
+    @GetMapping("/check-discount-eligibility")
+    public ResponseEntity<Map<String, Boolean>> checkDiscountEligibility(Principal principal) {
+        String userId = principal.getName();
+        boolean eligible = transactionService.checkDiscountEligibility(userId);
+        return ResponseEntity.ok(Map.of("discountEligible", eligible));
     }
 }

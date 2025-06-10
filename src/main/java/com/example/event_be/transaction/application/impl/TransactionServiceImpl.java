@@ -102,4 +102,13 @@ public class TransactionServiceImpl implements TransactionService {
         ticket.setParTicketCategoryCapacity(ticket.getParTicketCategoryCapacity() - request.getQuantity());
         evtAppTicketRepository.save(ticket);
     }
+    @Override
+    public boolean checkDiscountEligibility(String userId) {
+        return casAppRepository.findByAppUserId(userId)
+                .map(casApp -> casApp.getPreReferenceNumber() != null &&
+                        !casApp.getPreReferenceNumber().isEmpty() &&
+                        !casApp.isReferralDiscountUsed())
+                .orElse(false);
+    }
+
 }
